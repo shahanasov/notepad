@@ -14,8 +14,6 @@ final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(firebaseAuthProvider).authStateChanges();
 });
 
-
-
 /// Firestore instance provider
 final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
@@ -26,7 +24,6 @@ final noteRepositoryProvider = Provider<NoteRepository>((ref) {
   final firestore = ref.watch(firestoreProvider);
   return NoteRepository(firestore);
 });
-
 
 ///  Notes Stream Provider
 final userNotesProvider = StreamProvider<List<NoteModel>>((ref) {

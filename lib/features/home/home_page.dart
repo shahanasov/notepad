@@ -85,6 +85,7 @@ class HomeScreen extends ConsumerWidget {
                         builder: (context) => AddNoteScreen(
                           title: note.title,
                           message: note.message,
+                          id:note.id
                         ),
                       ),
                     );

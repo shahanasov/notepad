@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:notepad/features/notes/data/notes_model.dart';
 
@@ -12,8 +11,17 @@ class NoteRepository {
     required String uid,
     required String title,
     required String message,
+    String? noteId
   }) async {
+    final notesCollection = _firestore
+      .collection('users')
+      .doc(uid)
+      .collection('notes');
+
+  // Generate new ID if not editing
+  final id = noteId ?? notesCollection.doc().id;
     final noteData = {
+      'id': id,
       'title': title,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
@@ -23,39 +31,39 @@ class NoteRepository {
         .collection('users')
         .doc(uid)
         .collection('notes')
-        .add(noteData);
+        .doc(id)
+        .set(noteData);
   }
 
   /// Get all notes in real-time for a user
-Stream<List<NoteModel>> getNotes(String uid) {
-  return _firestore
-      .collection('users')
-      .doc(uid)
-      .collection('notes')
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => NoteModel.fromDoc(doc)).toList());
-}
-
-}
-
-
-  String formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      if (difference.inHours == 0) {
-        return '${difference.inMinutes} min ago';
-      }
-      return '${difference.inHours} hr ago';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
+  Stream<List<NoteModel>> getNotes(String uid) {
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('notes')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => NoteModel.fromDoc(doc)).toList(),
+        );
   }
+}
 
+String formatDate(DateTime date) {
+  final now = DateTime.now();
+  final difference = now.difference(date);
+
+  if (difference.inDays == 0) {
+    if (difference.inHours == 0) {
+      return '${difference.inMinutes} min ago';
+    }
+    return '${difference.inHours} hr ago';
+  } else if (difference.inDays == 1) {
+    return 'Yesterday';
+  } else if (difference.inDays < 7) {
+    return '${difference.inDays} days ago';
+  } else {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+}
